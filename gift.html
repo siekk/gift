@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You ❤️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;500;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #444;
+            overflow-x: hidden; /* Prevents scrollbar from falling snow */
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 85%; /* Slightly smaller to fit flowers on mobile */
+            max-width: 500px;
+            text-align: center;
+            transition: all 0.5s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1, h2 {
+            font-family: 'Dancing Script', cursive;
+            color: #d63384;
+            margin-bottom: 20px;
+        }
+
+        h1 { font-size: 3rem; }
+        h2 { font-size: 2rem; }
+        p { font-size: 1.1rem; line-height: 1.6; }
+
+        input {
+            padding: 15px;
+            border-radius: 30px;
+            border: 2px solid #ddd;
+            width: 70%;
+            font-size: 1rem;
+            outline: none;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: border 0.3s;
+        }
+
+        input:focus { border-color: #d63384; }
+
+        button {
+            background-color: #d63384;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            font-weight: 600;
+            margin: 10px;
+        }
+
+        button:hover { transform: scale(1.05); background-color: #b02a6c; }
+
+        .hidden { display: none; }
+        .error { color: red; display: none; font-size: 0.9rem; margin-top: 10px; }
+
+        .gallery { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+        .gallery img { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .gallery img:hover { transform: scale(1.1); }
+        
+        /* Falling Particles */
+        .particle { position: absolute; top: -10px; color: #fff; font-size: 1em; opacity: 0.8; pointer-events: none; animation: fall linear forwards; z-index: 1; }
+        @keyframes fall { to { transform: translateY(105vh); } }
+
+        /* --- FIXED FLOWER CSS --- */
+        .side-decor {
+            position: absolute;
+            height: 100%;
+            width: 60px;
+            top: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            /* opacity: 0; REMOVED THIS LINE - IT WAS THE BUG */
+        }
+
+        .side-decor.left { left: -25px; } /* Adjusted so it stays on screen */
+        .side-decor.right { right: -25px; transform: scaleX(-1); }
+
+        /* CSS Art for Flower */
+        .flower {
+             position: relative;
+             width: 30px; 
+             height: 30px;
+             background: #ff9a9e; /* Pink Petal */
+             border-radius: 50%;
+             opacity: 0; /* Start hidden for animation */
+             box-shadow: 
+                0 0 0 5px #ff9a9e, /* Make it thicker */
+                15px -10px 0 0px #fecfef, 
+                -15px 10px 0 0px #ff9a9e, 
+                12px 12px 0 0px #fecfef,
+                -12px -12px 0 0px #fecfef;
+        }
+
+        /* Yellow center of the flower */
+        .flower::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffeaa7;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        /* Sizes */
+        .f-small { transform: scale(0.6); }
+        .f-medium { transform: scale(0.9); }
+        .f-large { transform: scale(1.2); }
+
+        /* Animation */
+        @keyframes bloomIn {
+            0% { opacity: 0; transform: scale(0) rotate(-45deg); }
+            60% { opacity: 1; transform: scale(1.1) rotate(10deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        /* Trigger Animation when Letter Screen is visible */
+        #letter-screen:not(.hidden) .side-decor .flower {
+             animation: bloomIn 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        /* Staggered Timings for natural effect */
+        #letter-screen:not(.hidden) .side-decor.left .f-1 { animation-delay: 0.4s; }
+        #letter-screen:not(.hidden) .side-decor.left .f-2 { animation-delay: 0.6s; }
+        #letter-screen:not(.hidden) .side-decor.left .f-3 { animation-delay: 0.8s; }
+        
+        #letter-screen:not(.hidden) .side-decor.right .f-1 { animation-delay: 0.5s; }
+        #letter-screen:not(.hidden) .side-decor.right .f-2 { animation-delay: 0.7s; }
+        #letter-screen:not(.hidden) .side-decor.right .f-3 { animation-delay: 0.9s; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container" id="login-screen-1">
+        <h1>Hello Baby!</h1>
+        <p>Let's take a trip down memory lane.<br><strong>If we could live in any country, where would it be?</strong></p>
+        
+        <input type="text" id="passcode-input-1" placeholder="Type the place...">
+        <br>
+        <button onclick="checkPasscode1()">Next ➡️</button>
+        <p id="error-msg-1" class="error">Nope, try again! 😜</p>
+    </div>
+
+    <div class="container hidden" id="login-screen-2">
+        <h1>Question #2</h1>
+        <p>This one is easy.<br><strong>Who is the most handsome person in the world?</strong></p>
+
+        <input type="text" id="passcode-input-2" placeholder="Type the name...">
+        <br>
+        <button onclick="checkPasscode2()">Submit ❤️</button>
+        <p id="error-msg-2" class="error">Wrong answer! (Hint: It's me)</p>
+    </div>
+
+    <div class="container hidden" id="sweet-screen">
+        <h1>Awww! ❤️</h1>
+        <p>You got it right! You are so sweet.</p>
+        <p>Now, I have a little surprise for you...</p>
+        <button onclick="goToReasons()">Open Gift 🎁</button>
+    </div>
+
+    <div class="container hidden" id="reasons-screen">
+        <h2>Why I Love You</h2>
+        <div id="reason-display" style="min-height: 80px; font-size: 1.3rem; margin: 30px 0;">
+            Are you ready?
+        </div>
+        <button id="next-btn" onclick="nextReason()">Tell Me Why</button>
+        <button id="letter-btn" class="hidden" onclick="showLetter()">Read My Letter 💌</button>
+    </div>
+
+    <div class="container hidden" id="letter-screen" style="max-width: 600px;">
+        
+        <div class="side-decor left">
+            <div class="flower f-1 f-medium"></div>
+            <div class="flower f-2 f-large"></div>
+            <div class="flower f-3 f-small"></div>
+        </div>
+        <div class="side-decor right">
+            <div class="flower f-1 f-medium"></div>
+            <div class="flower f-2 f-large"></div>
+            <div class="flower f-3 f-small"></div>
+        </div>
+
+        <h2>Merry Christmas!</h2>
+        <div style="text-align: left; max-height: 350px; overflow-y: auto; padding-right: 10px; margin-bottom: 20px;">
+            <p><strong>My Dearest Zanea,</strong></p>
+            
+            <p>Merry Christmas my sweet, precious, caring, and my loving baby! From the moment we met, you've filled my life with love, laughter, and warmth. Everyday with you is a gift, and I cherish the little moments we share that make our love so special.</p>
+            
+            <p>You are my best friend and my greatest love. I'm blessed to have you in this lifetime that we have. I may not be the best boyfriend, but I'll strive to be able to provide you the best.</p>
+            
+            <p>No matter what happens, I'll be staying by your side, supporting and encouraging you through the difficult days, and stand with you during the prosperous ones.</p>
+            
+            <p>My wish for you is for you to never lose your smile that brings joy and laughter to the people around you, your drive to pursue your dreams and ambitions, and lastly, your light that shines within your soul. You deserve the best this world could offer.</p>
+            
+            <p>Thank you for being you—kind, wonderful, and absolutely amazing. I love you more than words could ever say.</p>
+            
+            <p>Forever yours,<br>Andrei</p>
+        </div>
+
+        <h3>I love you</h3>
+        <div class="gallery">
+            <img src="1.jpg" alt="My">
+            <img src="2.jpg" alt="Baby">
+            <img src="3.jpg" alt="Zanea">
+        </div>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // --- CONFIGURATION ---
+
+        // 1. ANSWERS FOR QUESTION 1
+        const ANSWERS_1 = ["switzerland", "swiss", "switserland"]; 
+
+        // 2. ANSWERS FOR QUESTION 2
+        const ANSWERS_2 = ["you", "me", "ikaw", "ako", "si andrei", "andrei"]; 
+
+        // 3. YOUR 10 REASONS
+        const reasons = [
+            "1. You have the kindest heart I know.",
+            "2. You persevere through the difficult challenges.",
+            "3. Your laugh is my favorite sound.",
+            "4. The way you dedicate yourself to achieving your dreams.",
+            "5. The way you love me.",
+            "6. You support me when I'm stressed.",
+            "7. The way your eyes shine.",
+            "8. You are beautiful inside and out.",
+            "9. The way you handle my difficult days gently with patience.",
+            "10. I simply cannot imagine life without you."
+        ];
+
+        // --- LOGIC ---
+        
+        let reasonIndex = 0;
+        const screen1 = document.getElementById('login-screen-1');
+        const screen2 = document.getElementById('login-screen-2');
+        const sweetScreen = document.getElementById('sweet-screen');
+        const reasonsScreen = document.getElementById('reasons-screen');
+        const letterScreen = document.getElementById('letter-screen');
+        const music = document.getElementById('bg-music');
+
+        function checkPasscode1() {
+            const input = document.getElementById('passcode-input-1').value.toLowerCase().trim();
+            const error = document.getElementById('error-msg-1');
+
+            if (ANSWERS_1.includes(input)) {
+                screen1.style.opacity = 0;
+                setTimeout(() => {
+                    screen1.classList.add('hidden');
+                    screen2.classList.remove('hidden');
+                }, 500);
+            } else {
+                error.style.display = 'block';
+                shake(screen1);
+            }
+        }
+
+        function checkPasscode2() {
+            const input = document.getElementById('passcode-input-2').value.toLowerCase().trim();
+            const error = document.getElementById('error-msg-2');
+
+            if (ANSWERS_2.includes(input)) {
+                music.volume = 0.5; 
+                music.play().catch(e => console.log("Audio play failed: ", e));
+
+                screen2.style.opacity = 0;
+                setTimeout(() => {
+                    screen2.classList.add('hidden');
+                    sweetScreen.classList.remove('hidden');
+                }, 500);
+            } else {
+                error.style.display = 'block';
+                shake(screen2);
+            }
+        }
+
+        function goToReasons() {
+            sweetScreen.style.opacity = 0;
+            setTimeout(() => {
+                sweetScreen.classList.add('hidden');
+                reasonsScreen.classList.remove('hidden');
+            }, 500);
+        }
+
+        function shake(element) {
+            element.style.transform = 'translateX(10px)';
+            setTimeout(() => { element.style.transform = 'translateX(0)'; }, 100);
+            setTimeout(() => { element.style.transform = 'translateX(-10px)'; }, 200);
+            setTimeout(() => { element.style.transform = 'translateX(0)'; }, 300);
+        }
+
+        function nextReason() {
+            const display = document.getElementById('reason-display');
+            const btn = document.getElementById('next-btn');
+            const letterBtn = document.getElementById('letter-btn');
+
+            if (reasonIndex < reasons.length) {
+                display.style.opacity = 0;
+                setTimeout(() => {
+                    display.innerText = reasons[reasonIndex];
+                    display.style.opacity = 1;
+                    reasonIndex++;
+                }, 300);
+            } else {
+                display.innerText = "And one last thing...";
+                btn.classList.add('hidden');
+                letterBtn.classList.remove('hidden');
+            }
+        }
+
+        function showLetter() {
+            reasonsScreen.style.opacity = 0;
+            setTimeout(() => {
+                reasonsScreen.classList.add('hidden');
+                letterScreen.classList.remove('hidden');
+            }, 500);
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.innerText = Math.random() > 0.5 ? '❄️' : '❤️';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 5000);
+        }
+        setInterval(createParticle, 300);
+
+    </script>
+</body>
+</html>
